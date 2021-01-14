@@ -1,0 +1,36 @@
+.ui.form {
+  padding: 40px;
+  border-radius: 0 20px 0px 0px;
+  background-color: #ffffff;
+}
+h1 {
+  font-size: 35px;
+  font-family: "Poppins";
+}
+div > p {
+  color: red;
+}
+.user-id {
+  visibility: visible !important;
+}
+.form-element {
+  visibility: hidden;
+}
+.header-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.clear {
+  height: 40px;
+}
+.ui .button {
+  background-color: #498fff;
+  color: white;
+}
+
+/* For Js functionality  */
+.visible {
+  visibility: visible;
+}
+/* End Of For Js functionality */

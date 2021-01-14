@@ -1,0 +1,7 @@
+.ui.container {
+  margin-top: 5%;
+  margin-bottom: 5%;
+  min-height: 80vh;
+  grid-template-columns: 1fr 3fr;
+  display: grid;
+}
