@@ -19,27 +19,27 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.createUser = async (req, res) => {
-  try {
-    const newUser = await User.create(req.body);
+// exports.createUser = async (req, res) => {
+//   try {
+//     const newUser = await User.create(req.body);
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        user: newUser,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+//     res.status(201).json({
+//       status: 'success',
+//       data: {
+//         user: newUser,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       status: 'fail',
+//       message: err.message,
+//     });
+//   }
+// };
 
 exports.findUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findOne({ id: req.params.id });
     res.status(200).json({
       status: 'success',
       data: {
@@ -61,7 +61,7 @@ exports.updateUser = async (req, res) => {
       req.body.password = await bcrypt.hash(req.body.password, salt);
     }
 
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findOneAndUpdate({ id: req.params.id }, req.body, {
       upsert: true,
       $set: req.body,
       new: true,
@@ -84,7 +84,7 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findOneAndDelete(req.params.id);
+    const user = await User.findOneAndDelete({ id: req.params.id });
     res.status(204).json({
       status: 'success',
       data: null,

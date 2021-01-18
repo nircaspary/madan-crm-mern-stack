@@ -1,4 +1,4 @@
 import React from "react";
-const FormResponse = () => {
-  return "Response";
+const FormResponse = (props) => {
+  return <div>{props.response}</div>;
 };

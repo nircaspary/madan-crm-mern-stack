@@ -5,7 +5,7 @@
 }
 h1 {
   font-size: 35px;
-  font-family: "Poppins";
+  font-family: 'Poppins';
 }
 div > p {
   color: red;
@@ -13,9 +13,7 @@ div > p {
 .user-id {
   visibility: visible !important;
 }
-.form-element {
-  visibility: hidden;
-}
+
 .header-container {
   display: flex;
   width: 100%;
@@ -28,9 +26,3 @@ div > p {
   background-color: #498fff;
   color: white;
 }
-
-/* For Js functionality  */
-.visible {
-  visibility: visible;
-}
-/* End Of For Js functionality */

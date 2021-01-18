@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
-  _id: {
+  id: {
+    unique: true,
     type: String,
     required: [true, 'You must fill your ID'],
   },
