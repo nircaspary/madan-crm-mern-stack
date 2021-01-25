@@ -8,15 +8,25 @@ exports.login = async (req, res) => {
   //Check for user id
   const user = await User.findOne({ id: req.body.id });
   if (!user)
-    return res.status(400).json({
-      message: 'Invalid ID or password',
+    return res.status(401).json({
+      err: {
+        status: 'Failed',
+        message: 'Invalid ID or password',
+      },
     });
   //Check for password
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword)
-    return res.status(400).json({
-      message: 'Invalid ID or password',
+    return res.status(401).json({
+      err: {
+        status: 'Failed',
+        message: 'Invalid ID or password',
+      },
     });
 
-  res.json({ token: user.generateAuthToken() });
+  res.status(200).json({
+    status: 'Succsses',
+    message: 'Login successful',
+    token: user.generateAuthToken(),
+  });
 };

@@ -1,9 +1,7 @@
 import { React, useState, useEffect } from 'react';
 import './form.css';
-import schema from '../../models/FormValidationSchema';
 import * as formController from '../../controllers/formController';
-import * as formView from '../../views/formView.js';
-import { useInput } from './useInput';
+import { useInput } from '../../hooks/useInput';
 
 const Form = () => {
   const [visibility, setVisibility] = useState('inline');
@@ -77,11 +75,10 @@ const Form = () => {
     const userRes = await formController.postData(`http://127.0.0.1:8000/api/v1/users/${user.id}`, user);
     // Send Fault Data To The Faults Collection
     const faultRes = await formController.postData('http://127.0.0.1:8000/api/v1/faults', fault);
-    console.log(userRes, faultRes);
   };
 
   return (
-    <form className="ui form" onSubmit={handleSubmit} autoComplete="off" noValidate>
+    <form className="ui form fault-form" onSubmit={handleSubmit} autoComplete="off" noValidate>
       <h1>Fill Form</h1>
       <div className="field user-id">
         <label>ID</label>
@@ -125,7 +122,7 @@ const Form = () => {
         <input type="file" name="fileName" className="upload-file" style={{ visibility: visibility }}></input>
       </div>
 
-      <input type="submit" className="ui button form-element" value="Submit" />
+      <input type="submit" className="ui button form-element" value="Submit" style={{ visibility: visibility }} />
     </form>
   );
 };

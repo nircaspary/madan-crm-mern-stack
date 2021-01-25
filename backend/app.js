@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
 module.exports = app;
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
-app.use(cors());
+app.use(cors({ credential: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 
 const authRouter = require('./routes/authRoutes');

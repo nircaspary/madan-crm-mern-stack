@@ -20,6 +20,7 @@ const faultSchema = new mongoose.Schema({
   //For Administrators
   team: {
     type: String,
+    default: 'Help Desk',
   },
   status: {
     type: String,

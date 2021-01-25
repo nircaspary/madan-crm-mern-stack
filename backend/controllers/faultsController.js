@@ -1,14 +1,21 @@
 const Fault = require('../models/faultsModel');
 const express = require('express');
+const APIFeatures = require('.././utils/apiFeatures');
 const app = express();
 
 exports.getAllFaults = async (req, res) => {
   try {
-    const fault = await Fault.find();
+    const features = new APIFeatures(Fault.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const faults = await features.query;
+    console.log(faults);
     res.status(200).json({
       status: 'succses',
       data: {
-        fault,
+        faults,
       },
     });
   } catch (err) {

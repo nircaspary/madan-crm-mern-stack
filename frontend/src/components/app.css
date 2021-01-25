@@ -1,7 +1,15 @@
 .ui.container {
-  margin-top: 5%;
+  margin-top: 2%;
   margin-bottom: 5%;
-  min-height: 80vh;
+  min-height: 90vh;
   grid-template-columns: 1fr 3fr;
   display: grid;
+  width: 80vw;
+}
+@media screen and (max-width: 1200px) {
+  .ui.container {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+  }
 }
