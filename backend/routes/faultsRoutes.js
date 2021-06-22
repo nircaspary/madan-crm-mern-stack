@@ -1,15 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const faultController = require('../controllers/faultsController');
-const auth = require('../middleware/authMiddleware');
-router
-  .route('/')
-  .get(auth, faultController.getAllFaults)
-  .post(faultController.createFault);
+const authController = require('../controllers/authController');
+const faultLogsRouter = require('../routes/faultLogsRoutes');
+
+router.post('/', faultController.uploadImages, faultController.saveImages, faultController.createFault);
+
+// Because middleware stack goes one after another, all routes on this router that are under this middleware function, will be effected by the protect function
+router.use(authController.protect);
+
+router.route('/').get(faultController.getAllFaults);
 router
   .route('/:id')
-  .get(auth, faultController.findFault)
-  .patch(auth, faultController.updateFault)
-  .delete(auth, faultController.deleteFault);
+  .get(faultController.findFault)
+  .patch(faultController.updateFault)
+  .delete(authController.restrictTo('admin'), faultController.deleteFault);
+
+router.use('/:faultId/faultLogs', faultLogsRouter);
 
 module.exports = router;

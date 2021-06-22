@@ -1,18 +1,14 @@
 import React from 'react';
-import { Redirect, Router, Route } from 'react-router-dom';
+import { Redirect, Route } from 'react-router-dom';
 import auth from '../models/Auth';
 
 export const ProtectedRoute = ({ component: Component, ...rest }) => {
-  return (
+  return !rest.isAdmin ? (
+    <Route {...rest} render={(props) => (auth.user() ? <Component {...props} /> : <Redirect to={{ pathname: '/' }} />)} />
+  ) : (
     <Route
       {...rest}
-      render={(props) => {
-        if (auth.isAuthenticated()) {
-          return <Component {...props} />;
-        } else {
-          return <Redirect to={{ pathname: '/' }} />;
-        }
-      }}
+      render={(props) => (auth.user() && auth.user().role === 'admin' ? <Component {...props} /> : <Redirect to={{ pathname: '/' }} />)}
     />
   );
 };

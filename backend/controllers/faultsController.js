@@ -1,97 +1,98 @@
 const Fault = require('../models/faultsModel');
-const express = require('express');
 const APIFeatures = require('.././utils/apiFeatures');
-const app = express();
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+const multer = require('multer');
+const sharp = require('sharp');
 
-exports.getAllFaults = async (req, res) => {
-  try {
-    const features = new APIFeatures(Fault.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const faults = await features.query;
-    console.log(faults);
-    res.status(200).json({
-      status: 'succses',
-      data: {
-        faults,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) cb(null, true);
+  else cb(new AppError('Not an image! Please upload only images', 400), false);
 };
 
-exports.createFault = async (req, res) => {
-  try {
-    const newFault = await Fault.create(req.body);
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        fault: newFault,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.uploadImages = upload.array('images', 3);
 
-exports.findFault = async (req, res) => {
-  try {
-    const fault = await Fault.findById(req.params.id);
-    res.status(200).json({
-      status: 'success',
-      data: {
-        fault,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.saveImages = catchAsync(async (req, res, next) => {
+  if (!req.files) return next();
 
-exports.updateFault = async (req, res) => {
-  try {
-    const fault = await Fault.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        fault,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+  req.body.images = [];
+  await Promise.all(
+    req.files.map(async (file, i) => {
+      const filename = `Fault-${req.body.user_id}-${Date.now()}-${i + 1}.jpeg`;
 
-exports.deleteFault = async (req, res) => {
-  try {
-    const fault = await Fault.findOneAndDelete(req.params.id);
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+      await sharp(file.buffer).toFormat('jpeg').toFile(`public/images/faults/${filename}`);
+      req.body.images.push(filename);
+    })
+  );
+
+  next();
+});
+
+exports.getAllFaults = catchAsync(async (req, res, next) => {
+  if (req.user.role !== 'admin') req.query.team = req.user.role;
+
+  const features = new APIFeatures(Fault.find(), req.query).filter().sort().limitFields().paginate();
+  const faults = await features.query;
+
+  res.status(200).json({
+    status: 'succses',
+    data: {
+      faults,
+    },
+  });
+});
+
+exports.createFault = catchAsync(async (req, res, next) => {
+  const newFault = await Fault.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      fault: newFault,
+    },
+  });
+});
+
+exports.findFault = catchAsync(async (req, res, next) => {
+  const fault = await Fault.findById(req.params.id).populate('logs');
+  if (req.user.role !== 'admin' && fault.team !== req.user.role) return next(new AppError('You have no premission to get this fault'));
+  if (!fault) return next(new AppError(`No tour found with that ID`, 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      fault,
+    },
+  });
+});
+
+exports.updateFault = catchAsync(async (req, res, next) => {
+  const fault = await Fault.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  }).populate('user_id');
+
+  if (!fault) return next(new AppError(`No tour found with that ID`, 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      fault,
+    },
+  });
+});
+
+exports.deleteFault = catchAsync(async (req, res, next) => {
+  const fault = await Fault.findOneAndDelete(req.params.id);
+
+  if (!fault) return next(new AppError(`No fault found with that ID`, 404));
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});

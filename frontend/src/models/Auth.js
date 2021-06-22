@@ -1,19 +1,22 @@
+import jwtDecode from 'jwt-decode';
+import { get, post } from './Http';
+
 class Auth {
-  constructor() {
-    this.authenticated = false;
+  async login(id, password) {
+    const { data } = await post(`auth/login`, { id, password });
+    localStorage.setItem('token', data.token);
   }
-  login(cb) {
-    this.authenticated = true;
-    cb();
-  }
-  logout(cb) {
+  logout() {
     localStorage.clear();
-    this.authenticated = false;
-    cb();
   }
 
-  isAuthenticated() {
-    return this.authenticated;
+  user() {
+    try {
+      const jwt = localStorage.getItem('token');
+      return jwtDecode(jwt);
+    } catch (ex) {
+      return null;
+    }
   }
 }
 export default new Auth();

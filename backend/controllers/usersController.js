@@ -1,98 +1,77 @@
 const User = require('../models/usersModel');
-const bcrypt = require('bcrypt');
-const _ = require('lodash');
+const APIFeatures = require('.././utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-exports.getAllUsers = async (req, res) => {
-  try {
-    const user = await User.find();
-    res.status(200).json({
-      status: 'succses',
-      data: {
-        user,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const features = new APIFeatures(User.find(), req.query).filter().sort().limitFields().paginate();
+  const users = await features.query;
 
-// exports.createUser = async (req, res) => {
-//   try {
-//     const newUser = await User.create(req.body);
+  res.status(200).json({
+    status: 'succses',
+    data: {
+      users,
+    },
+  });
+});
 
-//     res.status(201).json({
-//       status: 'success',
-//       data: {
-//         user: newUser,
-//       },
-//     });
-//   } catch (err) {
-//     res.status(400).json({
-//       status: 'fail',
-//       message: err.message,
-//     });
-//   }
-// };
+exports.findUser = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ id: req.params.id });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
 
-exports.findUser = async (req, res) => {
-  try {
-    const user = await User.findOne({ id: req.params.id });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        user,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.createUser = catchAsync(async (req, res, next) => {
+  const user = await User.create(req.body);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
 
-exports.updateUser = async (req, res) => {
-  try {
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
-    }
+exports.getMe = catchAsync(async (req, res, next) => {
+  const me = await User.findOne({ id: req.user.id });
 
-    const user = await User.findOneAndUpdate({ id: req.params.id }, req.body, {
-      upsert: true,
-      $set: req.body,
-      new: true,
-      runValidators: true,
-    });
+  res.status(200).json({
+    status: 'succses',
+    data: {
+      user: me,
+    },
+  });
+});
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        user,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const user = await User.findOneAndUpdate({ id: req.params.id });
+  res.status(201).json({
+    status: 'success',
+    data: null,
+  });
+});
 
-exports.deleteUser = async (req, res) => {
-  try {
-    const user = await User.findOneAndDelete({ id: req.params.id });
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err.message,
-    });
-  }
-};
+exports.updateMe = catchAsync(async (req, res, next) => {
+  // Create error if user POST password data
+  if (req.body.password || req.body.passwordConfirm)
+    return next(new AppError('This Route is not for password update, please use /updateMyPassword', 400));
+  // Check if a user tries to change his role
+  if (req.body.role) return next(new AppError('You not allowed to change your role!', 403));
+  // Update user document
+  const updatedMe = await User.findOneAndUpdate({ id: req.user.id }, req.body, { new: true, runValidators: true });
+  res.status(200).json({
+    status: 'success',
+    updatedMe,
+  });
+});
+
+exports.deleteUser = catchAsync(async (req, res) => {
+  const user = await User.findOneAndDelete({ id: req.params.id });
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
