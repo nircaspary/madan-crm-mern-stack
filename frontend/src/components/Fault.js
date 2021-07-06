@@ -74,9 +74,7 @@ const Fault = (props) => {
         <div className="cell">{format(fault.createdAt)}</div>
         <div className="cell">{fault.completed_at ? fault.completed_at : 'Not Complete'}</div>
         <div className="cell">
-          <button type="button" onClick={() => handleIsDone()}>
-            {fault.isDone ? 'Completed' : 'Uncompleted'}
-          </button>
+          <input type="checkbox" onClick={() => handleIsDone()} style={{transform: 'scale(1.5)'}}/>
         </div>
       </div>
       {/* Fault Description And Now */}

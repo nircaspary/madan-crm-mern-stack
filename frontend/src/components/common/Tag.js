@@ -1,17 +1,11 @@
-import React, { useContext } from 'react';
-import { filtersContext } from '../../contexts/loggedInContexts';
+import React from 'react';
 
-const Tag = (props) => {
-  const { filters, setFilters } = useContext(filtersContext);
-  const { filter } = props;
-
-  const handleClick = () => setFilters(filters.filter((e) => e !== filter));
-
+const Tag = ({ filter }) => {
   return (
     <a className="ui label">
-      {`${Object.keys(filter).toString()}: `}
-      <b style={{ color: '#498FFF' }}>{`${Object.values(filter).toString()}`}</b>
-      <i className="delete icon" onClick={handleClick}></i>
+      {`${filter[0]}: `}
+      <b style={{ color: '#498FFF' }}>{`${filter[1]}`}</b>
+      <i className="delete icon" onClick={() => console.log('hey')}></i>
     </a>
   );
 };

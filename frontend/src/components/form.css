@@ -38,7 +38,6 @@ h1 {
 .ui .button {
   background-color: #498fff;
   color: white;
-  margin-bottom: 20px;
 }
 @media screen and (max-width: 1200px) {
   .ui.form-container {

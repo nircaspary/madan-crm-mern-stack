@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import { faultsContext, usersContext, filtersContext, queryStringContext } from '../contexts/loggedInContexts';
+import { faultsContext, usersContext, filtersContext } from '../contexts/loggedInContexts';
 import * as Http from '../models/Http';
 import Faults from './Faults';
 import AddButton from './common/AddButton';
@@ -7,12 +7,23 @@ import RenderLoader from './common/RenderLoader';
 import Users from './Users';
 import TableHeader from './common/TableHeader';
 import Filter from './Filter';
-import TableFooter from './common/TableFooter';
+import TableFooter from './TableFooter';
+import { serializeUrl } from '../helpers/serializeUrl';
 import './admins.css';
-import { Route, useLocation } from 'react-router-dom';
+import { Route, useLocation, useHistory, useParams } from 'react-router-dom';
 
 const Admins = () => {
-  const location = useLocation().pathname.split('/').pop();
+  const [filters, setFilters] = useState([]);
+  const [faults, setFaults] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loader, setLoader] = useState(true);
+
+  const location = useLocation();
+  const history = useHistory();
+  const page = location.pathname.split('/').pop();
+  const params = location.search;
+  const queryString = serializeUrl(filters).toString();
+
   const faultsHeaders = [
     'Fault id',
     'Name',
@@ -27,26 +38,20 @@ const Admins = () => {
   ];
 
   const usersHeaders = ['User Id', 'Name', 'Email', 'Role', 'Location', 'Team', 'Cell Phone'];
-  const [filters, setFilters] = useState([]);
-  const [faults, setFaults] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [loader, setLoader] = useState(true);
-  const [queryString, setQueryString] = useState('');
 
+  useEffect(() => history.push(`?${queryString}`), [filters]);
+  useEffect(() => setFilters(''), [page]);
   useEffect(() => {
     (async () => {
-      const res = await Http.get(`${location}?${queryString}`);
+      const res = await Http.get(`${page}${params}`);
       if (res) setTimeout(() => setLoader(false), 1000);
-
-      location === 'faults' ? setFaults(res.data.data.faults) : location === 'users' ? setUsers(res.data.data.users) : 'Error';
+      page === 'faults' ? setFaults(res.data.data.faults) : page === 'users' ? setUsers(res.data.data.users) : 'Error';
     })();
-  }, [location, queryString]);
+  }, [location]);
 
   return (
     <filtersContext.Provider value={{ filters, setFilters }}>
-      <queryStringContext.Provider value={{ queryString, setQueryString }}>
-        <Filter />
-      </queryStringContext.Provider>
+      <Filter />
       <AddButton />
       <div className="table-container" style={{ textAlign: 'center', width: '100%' }}>
         <div>

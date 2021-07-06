@@ -1,21 +1,16 @@
-import React from 'react';
-
-const dropdown = ({ options, header, getSelected, ...rest }) => {
+const Dropdown = ({ options, label, header, ...rest }, ref) => {
   return (
-    <select
-      className="ui compact selection dropdown"
-      onChange={(option) => {
-        const { filterBy } = rest;
-        filterBy ? getSelected(filterBy, option.target.value) : getSelected(option.target.value);
-      }}
-    >
-      <option value="">{header}</option>
-      {options
-        ? options.map((value) => {
-            return <option key={value}>{value}</option>;
-          })
-        : null}
-    </select>
+    <div className="field">
+      <label>{label}</label>
+      <select {...rest}>
+        <option value={''}>{header}</option>
+        {options.map((value) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
-export default dropdown;
+export default Dropdown;

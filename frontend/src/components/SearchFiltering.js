@@ -1,29 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import Dropdown from './common/Dropdown';
+import Input from './common/Input';
+import { filtersContext } from '../contexts/loggedInContexts';
+import { addFilter } from '../helpers/addFilter';
 
-const SerachFiltering = ({ getSelected }) => {
+const SerachFiltering = () => {
+  const { filters, setFilters } = useContext(filtersContext);
+  const activeFilters = { ...filters };
+  const [key, setKey] = useState('');
   const [value, setValue] = useState('');
-  const [filterBy, setFilterBy] = useState('');
-
-  const filters = ['first name', 'Location', 'Computer Name', 'description'];
-
-  const handleKeydown = (e) => {
-    e.key === 'Enter' ? getSelected(filterBy, value) : null;
-  };
+  const styles = { width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' };
+  const options = ['first name', 'Location', 'Computer Name', 'description'];
 
   return (
-    <div className="ui action input" style={{ width: '100%' }}>
-      <select className="ui compact selection dropdown" onChange={(e) => setFilterBy(e.target.value)}>
-        <option value="">Select Filter</option>
-        {filters.map((filter) => {
-          return (
-            <option key={filter} value={filter}>
-              {filter}
-            </option>
-          );
-        })}
-      </select>
-      <input placeholder="Search..." onChange={(e) => setValue(e.target.value)} onKeyDown={handleKeydown} value={value} style={{ width: '50%' }} />
-      <button className="ui button" onClick={() => getSelected(filterBy, value)}>
+    <div className="three-fields" style={styles}>
+      <Dropdown options={options} header={'Select Filter'} onChange={(e) => setKey(e.target.value)} />
+      <Input placeholder="Search..." label={'Filter Selection'} style={{ width: '300px' }} onChange={(e) => setValue(e.target.value)} />
+      <button className="ui button" onClick={() => addFilter(activeFilters, key, value, setFilters)}>
         Search
       </button>
     </div>

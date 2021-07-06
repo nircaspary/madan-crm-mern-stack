@@ -1,53 +1,39 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Dropdown from './common/Dropdown';
 import Tag from './common/Tag';
+import { addFilter } from '../helpers/addFilter';
 import SerachFiltering from './SearchFiltering';
-import { filtersContext, queryStringContext } from '../contexts/loggedInContexts';
+import { filtersContext } from '../contexts/loggedInContexts';
+
 import './admins.css';
 
 const Filter = () => {
   const { filters, setFilters } = useContext(filtersContext);
-  const { queryString, setQueryString } = useContext(queryStringContext);
-  const activeFilters = [...filters];
-
-  const addFilter = (filterBy, selectedFilterContent) => {
-    let addedFilter;
-
-    if (selectedFilterContent && filterBy) addedFilter = { [filterBy]: selectedFilterContent };
-    else return;
-
-    if (!stringsArray(activeFilters).includes(JSON.stringify(addedFilter))) {
-      activeFilters.push(addedFilter);
-      setFilters(activeFilters);
-    } else return;
-  };
-
-  const stringsArray = (arr) => arr.map((e) => JSON.stringify(e));
-  const toQueryString = (strArr) => strArr.join('').replace(/}{/g, '&').replace(/}|{|"/g, '').replace(/:/g, '=');
-
-  setQueryString(toQueryString(stringsArray(activeFilters)));
-
+  const activeFilters = { ...filters };
+ 
   const teams = ['help desk', 'info', 'lab', 'tech'];
   return (
-    <div className="filters-container">
-      <div className="all-filters">
-        <div>
-          <label>By Team</label>
-          <Dropdown options={teams} header={'Select Team'} getSelected={addFilter} filterBy={'role'} />
-        </div>
-        <div style={{ width: '40%' }}>
-          <label>Filters</label>
-          <SerachFiltering getSelected={addFilter} />
-        </div>
-        <div>
-          <label>By Status</label>
-          <Dropdown options={['Uncompleted', 'Completed']} header={'Select Status'} getSelected={addFilter} filterBy={'status'} />
-        </div>
+    <div className="ui form" style={{ width: '90%', paddingTop: '10px' }}>
+      <div className="three fields">
+        <Dropdown
+          label={'Team'}
+          options={teams}
+          header={'Select Team'}
+          onChange={(e) => addFilter(activeFilters, 'team', e.target.value, setFilters)}
+        />
+        <SerachFiltering />
+        <Dropdown
+          label={'status'}
+          options={['Uncompleted', 'Completed']}
+          header={'Select Status'}
+          onChange={(e) => addFilter(activeFilters, 'isDone', e.target.value, setFilters)}
+        />
       </div>
+
       <div className="tags-container" style={{ paddingTop: '10px' }}>
-        {filters.map((filter, index) => {
-          return <Tag key={`Filter ${index}`} filter={filter} />;
-        })}
+        {/* {tags.map((tag) => {
+          return <Tag key={`Filter ${tag}`} filter={tag} />;
+        })} */}
       </div>
     </div>
   );

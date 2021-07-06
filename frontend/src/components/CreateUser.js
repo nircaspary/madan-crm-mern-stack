@@ -1,5 +1,4 @@
 import { React, useState, useEffect } from 'react';
-import Joi from 'joi-browser';
 import Input from './common/Input';
 import Location from './Location';
 import Dropdown from './common/Dropdown';
