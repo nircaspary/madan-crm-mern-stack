@@ -6,6 +6,11 @@
   display: grid;
   width: 90vw;
 }
+.ui .button {
+  background-color: #498fff;
+  color: white;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -19,6 +24,7 @@ body {
   font-family: 'Poppins', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   min-height: 100vh;
 }
+
 
 
 

@@ -16,7 +16,9 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.findUser = catchAsync(async (req, res, next) => {
+  if (req.params.id === 'me') return next();
   const user = await User.findOne({ id: req.params.id });
+  if (!user) return next(new AppError('there is no user with that id', 404));
   res.status(200).json({
     status: 'success',
     data: {
@@ -47,10 +49,12 @@ exports.getMe = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
+  console.log(req.params.id);
   const user = await User.findOneAndUpdate({ id: req.params.id });
+  console.log(user);
   res.status(201).json({
     status: 'success',
-    data: null,
+    data: user,
   });
 });
 

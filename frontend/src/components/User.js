@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router';
 
 const User = (props) => {
-  const [user, setUser] = useState(props.user);
+  const history = useHistory();
+  const [user] = useState(props.user);
+  const handleDoubleClick = () => history.push(`/admins/users/${user.id}`);
 
   return (
-    <div className="table-row ui">
+    <div className="table-row ui" onClick={handleDoubleClick}>
       <div className="cell">{user.id}</div>
       <div className="cell">{`${user.firstName} ${user.lastName}`}</div>
       <div className="cell">{user.email}</div>

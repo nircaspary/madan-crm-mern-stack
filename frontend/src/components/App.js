@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { ProtectedRoute } from '../models/ProtectedRoutes';
 import Form from './Form';
 import ForgotPassword from './ForgotPassword';
+import ChangePassword from './ChangePassword';
 import Login from './Login';
 import Logout from './Logout';
 import CreateUser from './CreateUser';
@@ -21,8 +22,8 @@ const App = () => {
       <div className="ui form-container">
         <Switch>
           <Route exact path="/" component={Form} />
+          <Route exact path="/login/forgot-password" component={ForgotPassword} />
           <Route exact path="/login" component={Login} />
-          <Route exact path="/login/forgotPassword" component={ForgotPassword} />
           <ProtectedRoute exact path="/logout" component={Logout} />
           <ProtectedRoute exact path="/admins/faults" component={Admins} />
           <ProtectedRoute exact path="/admins/faults/:id" component={FaultPage} />
@@ -30,6 +31,7 @@ const App = () => {
           <ProtectedRoute exact path="/admins/users" component={Admins} isAdmin={true} />
           <ProtectedRoute exact path="/admins/user/delete/:id" component={DeleteItem} />
           <ProtectedRoute exact path="/admins/faults/delete/:id" component={DeleteItem} />
+          <ProtectedRoute exact path="/admins/users/change-password" component={ChangePassword} />
           <ProtectedRoute exact path="/admins/users/:id" component={UserProfile} />
           <Route path="/:id" component={NotFound} />
         </Switch>

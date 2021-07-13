@@ -4,7 +4,6 @@ import Input from './common/Input';
 import Location from './Location';
 import * as Http from '../models/Http';
 import { yupResolver } from '@hookform/resolvers/yup';
-import axios from 'axios';
 import './form.css';
 import { useForm } from 'react-hook-form';
 
@@ -16,6 +15,8 @@ const Form = () => {
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
 
+  const [serverErrors, setServerErrors] = useState('');
+  const [userId, setUserId] = useState({});
   const [display, setDisplay] = useState(false);
   const [id, setId] = useState('');
   const [location, setLocation] = useState({});
@@ -24,21 +25,27 @@ const Form = () => {
     const { firstName, lastName, email, cellPhone, officePhone, computerName, description, imagesUpload } = data;
     const user = { firstName, lastName, email, cellPhone, officePhone, location, computerName };
     // Send User Data To The Users Collection
-    const userRes = await Http.post(`auth/signup/${id}`, user);
-    const user_id = userRes.data.data.user._id;
+    try {
+      const userRes = await Http.post(`auth/signup/${id}`, user);
+      userRes && setUserId(userRes.data.data.user._id);
+    } catch (err) {
+      err && setServerErrors(err.response.data.message);
+      console.log(err.response.data.message);
+    }
 
     const fault = new FormData();
-    fault.append('user_id', user_id);
+    fault.append('user_id', userId);
     fault.append('description', description);
     for (let e of imagesUpload) fault.append('images', e);
 
     // Send Fault Data To The Faults Collection
-    const faultRes = await axios.post('http://127.0.0.1:8000/api/v1/faults', fault, {
+    const faultRes = await Http.post('faults', fault, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   };
 
   const fillUserData = async (id) => {
+    setDisplay(true);
     const { data } = await Http.get(`users/${id}`);
     if (data.data.user) {
       // Set Form Values If User Exists
@@ -49,15 +56,21 @@ const Form = () => {
       reset({ firstName: '', lastName: '', email: '', cellPhone: '', officePhone: '', computerName: '' });
       setLocation({});
     }
-    setDisplay(true);
   };
 
-  useEffect(() => (id.length === 9 ? fillUserData(id) : setDisplay(false)), [id]);
+  const clear = () => {
+    reset({ firstName: '', lastName: '', email: '', cellPhone: '', officePhone: '', computerName: '' });
+    setLocation({});
+    setDisplay(false);
+  };
+
+  useEffect(() => (id.length === 9 ? fillUserData(id) : clear()), [id]);
 
   return (
     <form className="ui form fault-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
       <h1>Fill Form</h1>
-      <input label="id" value={id} onChange={(e) => setId(e.target.value)} />
+
+      <input label="id" value={id} placeholder={'Enter Your ID'} onChange={(e) => setId(e.target.value)} />
       {display && (
         <>
           <div className="two fields">
@@ -77,6 +90,7 @@ const Form = () => {
           <Input label="Description" type="textarea" col="50" register={register} errors={errors.description} />
           <Input label="Images Upload" type="file" multiple={true} register={register} />
           <input type="submit" className="ui button form-element" />
+          {serverErrors && <p>{serverErrors}</p>}
         </>
       )}
     </form>

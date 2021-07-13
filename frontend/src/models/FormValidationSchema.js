@@ -20,10 +20,7 @@ const schema = yup.object().shape({
   //   .string()
   //   .required({ message: 'You must provide a description' })
   //   .max(4000, { message: 'Too many characters, please write less than 4000 characters' }),
-  // // password: yup.string().required({ message: 'You must provide a password' }),
-  // building: yup.string().required({ message: 'You must provide a full location' }),
-  // floor: yup.string().required({ message: 'You must provide a full location' }),
-  // roomNumber: yup.string().required({ message: 'You must provide a full location' }),
+  // password: yup.string().required({ message: 'You must provide a password' }),
 });
 
 export default schema;

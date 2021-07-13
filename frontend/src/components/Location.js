@@ -3,7 +3,6 @@ import Dropdown from './common/Dropdown';
 import { buildings, floors, roomNumbers } from '../helpers/locations';
 
 const Location = ({ passLocation, userLocation }) => {
-  console.log(userLocation);
   const [location, setLocation] = useState({ building: userLocation.building, floor: userLocation.floor, roomNumber: userLocation.roomNumber });
 
   useEffect(() => passLocation(location), [location]);

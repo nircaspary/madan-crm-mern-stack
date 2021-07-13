@@ -5,15 +5,16 @@ import { useHistory } from 'react-router-dom';
 
 const ForgotPasswordEmail = () => {
   const [email, setEmail] = useState('');
+  const [errors, setErrors] = useState('');
   const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await Http.post('auth/forgotPassword', { email });
-      if (res) history.replace('/login/forgotPassword/auth');
+      if (res) history.replace('/login/forgot-password/auth');
     } catch (err) {
-      console.log(err.response.data.message);
+      setErrors(err.response.data.message);
     }
   };
 
@@ -22,7 +23,8 @@ const ForgotPasswordEmail = () => {
       <h1>Forgot your password?</h1>
       <p style={{ textAlign: 'center' }}>please enter your email address for validation</p>
       <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ex: user@gmail.com" />
-      <Input type="submit" value="Get verification code" className="ui button form-element" />
+      <input type="submit" value="Get verification code" className="ui button form-element" />
+      <p style={{ textAlign: 'center', color: 'red', fontSize: '20px' }}>{errors}</p>
     </form>
   );
 };

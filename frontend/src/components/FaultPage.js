@@ -69,6 +69,7 @@ const FaultPage = () => {
               <Input label="Office Phone" defaultValue={user.officePhone} />
               <Input label="Email" defaultValue={user.email} />
               <Input label="role" defaultValue={user.role} />
+              <input type="submit" />
             </form>
           </div>
         </>

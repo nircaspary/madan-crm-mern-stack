@@ -1,15 +1,20 @@
-import { React, useContext, useState } from 'react';
-import { faultsContext } from '../contexts/loggedInContexts';
+import { React } from 'react';
+import useHttp from '../hooks/useHttp';
 import Fault from './Fault';
+import RenderLoader from './common/RenderLoader';
 
-const Faults = () => {
-  const { faults } = useContext(faultsContext);
+const Faults = ({ params }) => {
+  const { data, errors, isPending } = useHttp('GET', `faults${params}`);
 
   return (
     <>
-      {faults.map((fault) => (
-        <Fault fault={fault} key={fault._id} />
-      ))}
+      {isPending ? (
+        <RenderLoader />
+      ) : errors === [] ? (
+        <div>{errors}</div>
+      ) : data.faults ? (
+        data.faults.map((fault) => <Fault fault={fault} key={fault._id} />)
+      ) : null}
     </>
   );
 };

@@ -1,72 +1,74 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState } from 'react';
 import { useParams } from 'react-router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
+import { useHttp } from '../hooks/useHttp';
+import { useHistory } from 'react-router-dom';
 import Input from './common/Input';
-import auth from '../models/Auth';
+import Dropdown from './common/Dropdown';
 import Location from './Location';
 import RenderLoader from './common/RenderLoader';
 import schema from '../models/FormValidationSchema';
 import * as Http from '../models/Http';
+import auth from '../models/Auth';
 import './form.css';
 
-const MyProfile = (props) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({ resolver: yupResolver(schema) });
-  let userId;
-  useParams().id === 'my-profile' ? (userId = auth.user().id) : (userId = useParams().id);
+const UserProfile = (props) => {
+  const history = useHistory();
+  const resolver = { resolver: yupResolver(schema) };
+  const { register, handleSubmit, formState } = useForm(resolver);
   const [location, setLocation] = useState({});
-  const [loader, setLoader] = useState(true);
+  const roles = ['admin', 'help desk', 'lab', 'info', 'tech'];
+  let id;
+  if (useParams().id === 'my-profile') id = 'me';
+  else id = useParams().id;
 
-  const fillUserData = async (id) => {
-    const { data } = await Http.get(`users/${id}`);
-    // Set Form Values If User Exists
-    if (data.data.user) {
-      const { id, firstName, lastName, email, cellPhone, officePhone, location, computerName } = data.data.user;
-      reset({ id, firstName, lastName, email, cellPhone, officePhone, computerName });
-      setLocation(location);
-    } else {
-      reset({ id: '', firstName: '', lastName: '', email: '', cellPhone: '', officePhone: '', computerName: '' });
-      setLocation({});
-    }
-    setTimeout(() => setLoader(false), 1000);
-  };
-
-  useEffect(() => fillUserData(userId), []);
+  const { data, errors, isPending } = useHttp('GET', `users/${id}`);
 
   const onSubmit = async (data) => {
-    const { id, firstName, lastName, email, cellPhone, officePhone, computerName } = data;
-    const user = { id, firstName, lastName, email, cellPhone, officePhone, location, computerName };
-    const updatedUser = await Http.patch(`users/${userId}`, user);
+    const { firstName, lastName, email, cellPhone, officePhone, computerName, role } = data;
+    const user = { firstName, lastName, email, cellPhone, officePhone, location, computerName, role };
+    await Http.patch(`users/${id}`, user);
   };
 
-  return loader ? (
-    <RenderLoader />
-  ) : (
-    <form className="ui form fault-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
-      <h1>{`${'firstName'}'s ${'lastName'} Profile`}</h1>
-      <input type="button" className="ui button form-element" value="Edit User" />
-      <input
-        type="button"
-        className="ui button form-element red"
-        value="Delete User"
-        onClick={() => props.history.push(`/admins/user/delete/${userId}`)}
-      />
-      <Input label="Email" register={register} errors={errors.email} />
-      <div className="two fields">
-        <Input label="Cell Phone" register={register} errors={errors.cellPhone} />
-        <Input label="Office Phone" register={register} errors={errors.officePhone} />
-      </div>
-      <div className="three fields">
-        <Location passLocation={(location) => setLocation(location)} userLocation={location} />
-      </div>
-      <Input label="Computer Name" register={register} errors={errors.computerName} />
-      <Input type="submit" value="Submit" className="ui button form-element" />
-    </form>
+  return (
+    <>
+      {isPending && <RenderLoader />}
+      {data.user && (
+        <form className="ui form fault-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
+          <h1>{`User ${data.user.id}`}</h1>
+          <button className="ui button form-element">Edit User</button>
+          <button className="ui button form-element red" onClick={() => props.history.push(`/admins/user/delete/${id}`)}>
+            Delete User
+          </button>
+          <div className="two fields">
+            <Input label="First Name" register={register} defaultValue={data.user.firstName} />
+            <Input label="Last Name" register={register} defaultValue={data.user.lastName} />
+          </div>
+          <Input label="Email" register={register} defaultValue={data.user.email} />
+          <div className="two fields">
+            <Input label="Cell Phone" register={register} defaultValue={data.user.cellPhone} />
+            <Input label="Office Phone" register={register} defaultValue={data.user.email} />
+          </div>
+          <div className="three fields">
+            <Location passLocation={(location) => setLocation(location)} userLocation={data.user.location} />
+          </div>
+          <Input label="Computer Name" register={register} defaultValue={data.user.computerName} />
+          {auth.user().role === 'admin' && id !== 'me' && (
+            <Dropdown label="Role" header={data.user.role} options={roles.filter((role) => role !== data.user.role)} />
+          )}
+          <input type="submit" className="ui button form-element" />
+          <br />
+          {id === 'me' && (
+            <a style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => history.push(`change-password`)}>
+              Change Password
+            </a>
+          )}
+        </form>
+      )}
+
+      {errors && <div>{errors}</div>}
+    </>
   );
 };
-export default MyProfile;
+export default UserProfile;

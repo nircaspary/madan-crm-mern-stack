@@ -1,23 +1,21 @@
-import { React, useEffect, useState, useContext } from 'react';
+import { React } from 'react';
 import User from './User';
-import * as Http from '../models/Http';
+import useHttp from '../hooks/useHttp';
+import RenderLoader from './common/RenderLoader';
 import './admins.css';
-import { usersContext } from '../contexts/loggedInContexts';
 
-const Users = (props) => {
-  const { users } = useContext(usersContext);
-
-  const handleDoubleClick = (user) => props.history.push(`/admins/users/${user.id}`);
+const Users = ({ params }) => {
+  const { data, errors, isPending } = useHttp('GET', `users${params}`);
 
   return (
     <>
-      {users.map((user) => {
-        return (
-          <div key={user.id} className="ui styled fluid accordion" onDoubleClick={() => handleDoubleClick(user)}>
-            <User user={user} />
-          </div>
-        );
-      })}
+      {isPending ? (
+        <RenderLoader />
+      ) : errors === [] ? (
+        <div>{errors}</div>
+      ) : data.users ? (
+        data.users.map((user) => <User user={user} key={user._id} />)
+      ) : null}
     </>
   );
 };

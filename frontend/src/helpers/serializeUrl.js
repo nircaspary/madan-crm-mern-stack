@@ -8,5 +8,5 @@ export const serializeUrl = (filters) => {
       else params.set(key, element);
     }
   }
-  return params;
+  return params.toString();
 };
