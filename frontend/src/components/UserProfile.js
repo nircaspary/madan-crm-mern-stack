@@ -15,19 +15,26 @@ import './form.css';
 
 const UserProfile = (props) => {
   const history = useHistory();
-  const resolver = { resolver: yupResolver(schema) };
-  const { register, handleSubmit, formState } = useForm(resolver);
+  const {
+    register,
+    handleSubmit,
+    formState: { val },
+  } = useForm({ resolver: yupResolver(schema) });
+
   const [location, setLocation] = useState({});
-  const roles = ['admin', 'help desk', 'lab', 'info', 'tech'];
+  const [role, setRole] = useState('');
+  const roles = ['user', 'admin', 'help desk', 'lab', 'info', 'tech'];
+
   let id;
   if (useParams().id === 'my-profile') id = 'me';
   else id = useParams().id;
 
-  const { data, errors, isPending } = useHttp('GET', `users/${id}`);
+  const { data, errors, isPending } = useHttp(`users/${id}`);
 
   const onSubmit = async (data) => {
-    const { firstName, lastName, email, cellPhone, officePhone, computerName, role } = data;
-    const user = { firstName, lastName, email, cellPhone, officePhone, location, computerName, role };
+    const { firstName, lastName, email, cellPhone, officePhone, computerName, password } = data;
+    const user = { firstName, lastName, email, cellPhone, officePhone, location, computerName, role, password };
+
     await Http.patch(`users/${id}`, user);
   };
 
@@ -35,12 +42,9 @@ const UserProfile = (props) => {
     <>
       {isPending && <RenderLoader />}
       {data.user && (
-        <form className="ui form fault-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
+        <form className="ui form profile-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
           <h1>{`User ${data.user.id}`}</h1>
-          <button className="ui button form-element">Edit User</button>
-          <button className="ui button form-element red" onClick={() => props.history.push(`/admins/user/delete/${id}`)}>
-            Delete User
-          </button>
+
           <div className="two fields">
             <Input label="First Name" register={register} defaultValue={data.user.firstName} />
             <Input label="Last Name" register={register} defaultValue={data.user.lastName} />
@@ -55,12 +59,25 @@ const UserProfile = (props) => {
           </div>
           <Input label="Computer Name" register={register} defaultValue={data.user.computerName} />
           {auth.user().role === 'admin' && id !== 'me' && (
-            <Dropdown label="Role" header={data.user.role} options={roles.filter((role) => role !== data.user.role)} />
+            <>
+              <Dropdown
+                label="Role"
+                header={data.user.role}
+                options={roles.filter((role) => role !== data.user.role)}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              {role && role !== 'user' && <Input label="Password" type="password" register={register} errors={errors.password} />}
+            </>
           )}
-          <input type="submit" className="ui button form-element" />
-          <br />
+          <div className="field form-element">
+            <input type="submit" className="ui button form-element" />
+            <button className="ui button form-element red" onClick={() => props.history.push(`/admins/user/delete/${id}`)}>
+              Delete User
+            </button>
+          </div>
+
           {id === 'me' && (
-            <a style={{ textAlign: 'center', cursor: 'pointer' }} onClick={() => history.push(`change-password`)}>
+            <a style={{ textAlign: 'center', cursor: 'pointer', marginBottom: '20px' }} onClick={() => history.push(`change-password`)}>
               Change Password
             </a>
           )}

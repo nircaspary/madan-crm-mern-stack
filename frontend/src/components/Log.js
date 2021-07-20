@@ -1,12 +1,12 @@
 import React from 'react';
-import { format } from '../helpers/formatDateTime';
+import { formatDateTime } from '../helpers/formatDateTime';
 import './css/log.css';
 
 const Log = ({ description, createdAt }) => {
   return (
     <div className="log">
       <p>{description}</p>
-      <p>{format(createdAt)}</p>
+      <p>{formatDateTime(createdAt)}</p>
     </div>
   );
 };

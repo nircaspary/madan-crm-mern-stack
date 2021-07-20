@@ -6,7 +6,8 @@ import { serializeUrl } from '../helpers/serializeUrl';
 import { addFilter } from '../helpers/addFilter';
 import SerachFiltering from './SearchFiltering';
 import { filtersContext } from '../contexts/loggedInContexts';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
+
 import './admins.css';
 
 const Filter = () => {
@@ -14,6 +15,7 @@ const Filter = () => {
   const activeFilters = { ...filters };
   const history = useHistory();
   const params = serializeUrl(filters);
+
   useEffect(() => history.push(`?${params}`), [filters]);
 
   const teams = ['help desk', 'info', 'lab', 'tech'];
@@ -31,16 +33,17 @@ const Filter = () => {
         <SerachFiltering />
         <Dropdown
           label={'status'}
-          options={['Uncompleted', 'Completed']}
+          options={['Completed', 'Not completed']}
           header={'Select Status'}
           onChange={(e) => addFilter(activeFilters, 'isDone', e.target.value, setFilters)}
         />
       </div>
 
       <div className="tags-container" style={{ paddingTop: '10px' }}>
-        {/* {tags.map((tag) => {
-          return <Tag key={`Filter ${tag}`} filter={tag} />;
-        })} */}
+        {params.split('&').map((filter) => {
+          if (filter.includes('page')) return;
+          return <Tag key={`Filter ${filter}`} filter={filter} />;
+        })}
       </div>
     </div>
   );

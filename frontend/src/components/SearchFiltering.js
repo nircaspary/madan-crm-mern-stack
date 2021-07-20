@@ -10,7 +10,7 @@ const SerachFiltering = () => {
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const styles = { width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' };
-  const options = ['first name', 'Location', 'Computer Name', 'description'];
+  const options = ['id', 'first name', 'Location', 'Computer Name', 'description'];
 
   return (
     <div className="three-fields" style={styles}>

@@ -5,17 +5,13 @@ import RenderLoader from './common/RenderLoader';
 import './admins.css';
 
 const Users = ({ params }) => {
-  const { data, errors, isPending } = useHttp('GET', `users${params}`);
+  const { data, errors, isPending } = useHttp(`users${params}`);
 
   return (
     <>
-      {isPending ? (
-        <RenderLoader />
-      ) : errors === [] ? (
-        <div>{errors}</div>
-      ) : data.users ? (
-        data.users.map((user) => <User user={user} key={user._id} />)
-      ) : null}
+      {isPending && <RenderLoader />}
+      {data.users && data.users.map((user) => <User user={user} key={user._id} />)}
+      {errors && <p>{errors}</p>}
     </>
   );
 };

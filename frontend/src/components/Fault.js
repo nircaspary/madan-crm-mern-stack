@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { filtersContext } from '../contexts/loggedInContexts';
 import * as Http from '../models/Http';
-import { format } from '../helpers/formatDateTime';
+import { formatDateTime } from '../helpers/formatDateTime';
 import { useHistory } from 'react-router-dom';
 import './css/fault.css';
 
@@ -29,7 +30,13 @@ const Fault = (props) => {
 
   const handleIsDone = () => {
     const updatedFault = { ...fault };
-    fault.isDone ? (updatedFault.isDone = false) : (updatedFault.isDone = true);
+    if (fault.isDone) {
+      updatedFault.isDone = false;
+      updatedFault.completed_at = 'Not complete';
+    } else {
+      updatedFault.isDone = true;
+      updatedFault.completed_at = formatDateTime(Date.now());
+    }
     setFault(updatedFault);
     handleChange(fault._id, updatedFault);
   };
@@ -40,7 +47,10 @@ const Fault = (props) => {
     handleChange(fault._id, updatedFault);
   };
 
-  const expandFault = () => (expand ? setExpand('') : setExpand('active'));
+  const expandFault = (e) => {
+    if (e.target.type) return;
+    expand ? setExpand('') : setExpand('active');
+  };
 
   const roles = ['help desk', 'tech', 'lab', 'info'].filter((role) => role !== fault.team);
 
@@ -71,10 +81,10 @@ const Fault = (props) => {
             })}
           </select>
         </div>
-        <div className="cell">{format(fault.createdAt)}</div>
-        <div className="cell">{fault.completed_at ? fault.completed_at : 'Not Complete'}</div>
+        <div className="cell">{formatDateTime(fault.createdAt)}</div>
+        <div className="cell">{fault.completed_at}</div>
         <div className="cell">
-          <input type="checkbox" onClick={() => handleIsDone()} style={{transform: 'scale(1.5)'}}/>
+          <input type="checkbox" checked={fault.isDone} onChange={() => handleIsDone()} style={{ transform: 'scale(1.5)' }} />
         </div>
       </div>
       {/* Fault Description And Now */}
@@ -84,13 +94,13 @@ const Fault = (props) => {
             <h4>Fault Description</h4>
             {fault.description}
             <br />
-            <small>{format(fault.createdAt)}</small>
+            <small>{formatDateTime(fault.createdAt)}</small>
           </div>
           <div className="cell description">
             <h4>Fault Description Up to date</h4>
             {lastLog.description || lastLog}
             <br />
-            <small>{lastLog.createdAt && format(lastLog.createdAt)}</small>
+            <small>{lastLog.createdAt && formatDateTime(lastLog.createdAt)}</small>
           </div>
         </div>
       </div>

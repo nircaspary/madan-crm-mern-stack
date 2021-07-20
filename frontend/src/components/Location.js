@@ -5,6 +5,8 @@ import { buildings, floors, roomNumbers } from '../helpers/locations';
 const Location = ({ passLocation, userLocation }) => {
   const [location, setLocation] = useState({ building: userLocation.building, floor: userLocation.floor, roomNumber: userLocation.roomNumber });
 
+  useEffect(() => userLocation.building && setLocation(userLocation), [userLocation]);
+
   useEffect(() => passLocation(location), [location]);
 
   return (

@@ -3,6 +3,7 @@ import { Navbar } from './Navbar';
 import { Route, Switch } from 'react-router-dom';
 import { ProtectedRoute } from '../models/ProtectedRoutes';
 import Form from './Form';
+import ForgotPasswordAuth from './ForgotPasswordAuth';
 import ForgotPassword from './ForgotPassword';
 import ChangePassword from './ChangePassword';
 import Login from './Login';
@@ -22,8 +23,9 @@ const App = () => {
       <div className="ui form-container">
         <Switch>
           <Route exact path="/" component={Form} />
-          <Route exact path="/login/forgot-password" component={ForgotPassword} />
           <Route exact path="/login" component={Login} />
+          <Route exact path="/login/forgot-password/auth" component={ForgotPasswordAuth} />;
+          <Route exact path="/login/forgot-password" component={ForgotPassword} />;
           <ProtectedRoute exact path="/logout" component={Logout} />
           <ProtectedRoute exact path="/admins/faults" component={Admins} />
           <ProtectedRoute exact path="/admins/faults/:id" component={FaultPage} />

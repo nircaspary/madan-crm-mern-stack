@@ -20,7 +20,7 @@ const AdminLogin = (props) => {
     setIsPending(true);
     try {
       await auth.login(data.id, data.password);
-      props.history.replace('/admins/faults');
+      setTimeout(() => props.history.replace('/admins/faults'), 1000);
     } catch (err) {
       if (err.response.data.message) {
         setServerErrors(err.response.data.message);

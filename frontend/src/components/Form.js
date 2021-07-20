@@ -15,8 +15,8 @@ const Form = () => {
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
 
-  const [serverErrors, setServerErrors] = useState('');
-  const [userId, setUserId] = useState({});
+  const [serverErrors, setServerErrors] = useState({});
+  const [userId, setUserId] = useState('');
   const [display, setDisplay] = useState(false);
   const [id, setId] = useState('');
   const [location, setLocation] = useState({});
@@ -25,23 +25,16 @@ const Form = () => {
     const { firstName, lastName, email, cellPhone, officePhone, computerName, description, imagesUpload } = data;
     const user = { firstName, lastName, email, cellPhone, officePhone, location, computerName };
     // Send User Data To The Users Collection
-    try {
-      const userRes = await Http.post(`auth/signup/${id}`, user);
-      userRes && setUserId(userRes.data.data.user._id);
-    } catch (err) {
-      err && setServerErrors(err.response.data.message);
-      console.log(err.response.data.message);
-    }
+
+    const userRes = await Http.post(`auth/signup/${id}`, user);
+    userRes && setUserId(userRes.data.data.user._id);
 
     const fault = new FormData();
     fault.append('user_id', userId);
     fault.append('description', description);
     for (let e of imagesUpload) fault.append('images', e);
-
     // Send Fault Data To The Faults Collection
-    const faultRes = await Http.post('faults', fault, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const faultRes = await Http.post('faults', fault, { headers: { 'Content-Type': 'multipart/form-data' } });
   };
 
   const fillUserData = async (id) => {
@@ -70,7 +63,7 @@ const Form = () => {
     <form className="ui form fault-form" onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
       <h1>Fill Form</h1>
 
-      <input label="id" value={id} placeholder={'Enter Your ID'} onChange={(e) => setId(e.target.value)} />
+      <Input label="id" value={id} placeholder={'Enter Your ID'} onChange={(e) => setId(e.target.value)} />
       {display && (
         <>
           <div className="two fields">
@@ -86,11 +79,13 @@ const Form = () => {
           <div className="three fields">
             <Location passLocation={(location) => setLocation(location)} userLocation={location} />
           </div>
+
           <Input label="Computer Name" register={register} errors={errors.computerName} />
           <Input label="Description" type="textarea" col="50" register={register} errors={errors.description} />
           <Input label="Images Upload" type="file" multiple={true} register={register} />
           <input type="submit" className="ui button form-element" />
-          {serverErrors && <p>{serverErrors}</p>}
+          {serverErrors.faultsErr && <p>{serverErrors.faultsErr}</p>}
+          {serverErrors.usersErr && <p>{serverErrors.usersErr}</p>}
         </>
       )}
     </form>
